@@ -1,1 +1,146 @@
-aaaaaaaaaaaaaaa
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>魔法宝石游戏</title>
+    <style>
+      /* 游戏样式 */
+      #score {
+        font-family: Arial, sans-serif;
+        font-size: 24px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      #board {
+        border: 2px solid black;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 0 auto;
+        width: 520px;
+      }
+      .tile {
+        background-color: #eee;
+        border: 1px solid black;
+        border-radius: 10px;
+        height: 100px;
+        margin: 5px;
+        padding: 30px;
+        text-align: center;
+        user-select: none;
+        width: 100px;
+      }
+      .selected {
+        background-color: #ffb347;
+        color: white;
+      }
+      .correct {
+        background-color: #76ff03;
+        color: white;
+      }
+      /* 游戏动画 */
+      .tile {
+        transition: all 0.3s ease-in-out;
+      }
+      .tile:active {
+        transform: scale(1.2);
+      }
+      .correct {
+        animation: correct 0.5s ease-in-out;
+      }
+      @keyframes correct {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="score">得分: <span id="points">0</span></div>
+    <div id="board"></div>
+    <script>
+      // 游戏逻辑
+      const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b, '#ffc107', '#ff9800', '#ff5722', '#795548', '#607d8b'];
+      const tileCount = 16;
+      let board = document.getElementById('board');
+      let tiles = [];
+      let selectedTiles = [];
+      let points = 0;
+
+      function createBoard() {
+        for (let i = 0; i < tileCount; i++) {
+          let tile = document.createElement('div');
+          tile.classList.add('tile');
+          tile.addEventListener('click', function() {
+            selectTile(tile, i);
+          });
+          board.appendChild(tile);
+          tiles.push(tile);
+        }
+        shuffleTiles();
+      }
+
+      function shuffleTiles() {
+        let shuffledColors = colors.slice();
+        for (let i = shuffledColors.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledColors[i], shuffledColors[j]] = [shuffledColors[j], shuffledColors[i]];
+        }
+        for (let i = 0; i < tileCount; i++) {
+          tiles[i].style.backgroundColor = shuffledColors[i];
+        }
+      }
+
+      function selectTile(tile, index) {
+        if (!selectedTiles.includes(index)) {
+          tile.classList.add('selected');
+          selectedTiles.push(index);
+        } else {
+          tile.classList.remove('selected');
+          selectedTiles.splice(selectedTiles.indexOf(index), 1);
+        }
+        if (selectedTiles.length === 2) {
+          setTimeout(function() {
+            checkTiles();
+          }, 500);
+        }
+      }
+
+      function checkTiles() {
+        let tile1 = tiles[selectedTiles[0]];
+        let tile2 = tiles[selectedTiles[1]];
+        if (tile1.style.backgroundColor === tile2.style.backgroundColor) {
+          tile1.classList.remove('selected');
+          tile2.classList.remove('selected');
+          tile1.classList.add('correct');
+          tile2.classList.add('correct');
+          selectedTiles = [];
+          points++;
+          document.getElementById('points').innerHTML = points;
+          if (points === tileCount / 2) {
+            alert('恭喜你赢得了游戏！');
+            resetGame();
+          }
+        } else {
+          tile1.classList.remove('selected');
+          tile2.classList.remove('selected');
+          selectedTiles = [];
+        }
+      }
+
+      function resetGame() {// 重置游戏
+        board.innerHTML = '';
+        tiles = [];
+        selectedTiles = [];
+        points = 0;
+        document.getElementById('points').innerHTML = points;
+        createBoard();
+      }
+
+      createBoard();
+    </script>
+  </body>
+</html>
